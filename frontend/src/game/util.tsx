@@ -1,10 +1,11 @@
 import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import type { Snapshot } from '../types'
 
 export function Prose({ text, className = '' }: { text: string; className?: string }) {
   return (
     <div className={`prose ${className}`}>
-      <Markdown>{text}</Markdown>
+      <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
     </div>
   )
 }

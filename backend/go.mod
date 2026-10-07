@@ -1,6 +1,10 @@
 module github.com/rizface/detective-game/backend
 
-go 1.24.7
+// The replace directives point golang.org/x and gopkg.in modules at their official GitHub
+// mirrors; the machine this was built on could not reach proxy.golang.org. They are harmless.
+// To drop them: delete the replace lines and run `go mod tidy`.
+
+go 1.24
 
 replace golang.org/x/crypto => github.com/golang/crypto v0.31.0
 

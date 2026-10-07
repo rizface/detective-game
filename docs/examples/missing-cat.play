@@ -1,0 +1,8 @@
+# A scripted playthrough of the example case.
+address 12 Elm Street
+expect chapter>=2
+ask gray person:pike
+search Pike
+travel docks
+ask pike doc:collar
+expect flag:confessed

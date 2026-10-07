@@ -157,7 +157,7 @@ export default function CityMap({ map, locations, current, selected, onSelect }:
   })
 
   const px = 1 / scale // one screen pixel in map units
-  const showLabels = scale > 0.55
+  const showLabels = scale > 0.45
   const streetLabels = scale > 0.8
 
   const districts = useMemo(
@@ -174,6 +174,7 @@ export default function CityMap({ map, locations, current, selected, onSelect }:
         id: `st-${i}`,
         d: s.points.map((p, j) => `${j ? 'L' : 'M'}${p[0]},${p[1]}`).join(' '),
         kind: s.kind ?? 'street',
+        dim: !!s.dim,
         name: s.name,
         len: s.points.reduce((a, p, j) => (j ? a + Math.hypot(p[0] - s.points[j - 1][0], p[1] - s.points[j - 1][1]) : 0), 0),
       })),
@@ -212,13 +213,15 @@ export default function CityMap({ map, locations, current, selected, onSelect }:
 
         {/* Sodium glow under the streets: the city at night. */}
         <g className="map-street-glow" filter="url(#glow)">
-          {streets.map((s) => (
-            <path key={s.id} d={s.d} className={`k-${s.kind}`} strokeWidth={s.kind === 'avenue' ? 26 : s.kind === 'rail' ? 0 : 14} />
-          ))}
+          {streets
+            .filter((s) => !s.dim)
+            .map((s) => (
+              <path key={s.id} d={s.d} className={`k-${s.kind}`} strokeWidth={s.kind === 'avenue' ? 26 : s.kind === 'rail' ? 0 : 14} />
+            ))}
         </g>
         <g className="map-streets">
           {streets.map((s) => (
-            <path key={s.id} id={s.id} d={s.d} className={`k-${s.kind}`} strokeWidth={s.kind === 'avenue' ? 5 : s.kind === 'rail' ? 2.5 : 2.6} />
+            <path key={s.id} id={s.id} d={s.d} className={`k-${s.kind} ${s.dim ? 'dim' : ''}`} strokeWidth={s.kind === 'avenue' ? 5 : s.kind === 'rail' ? 2.5 : 2.6} />
           ))}
         </g>
         {streetLabels && (
@@ -256,6 +259,7 @@ export default function CityMap({ map, locations, current, selected, onSelect }:
                 transform={`translate(${l.x},${l.y})`}
               >
                 <circle r={(isCurrent ? 70 : 42) * px} fill="url(#lamp-halo)" className="halo" />
+                <title>{`${l.name} — ${l.address}${l.visited ? '' : ' (not visited)'}`}</title>
                 <circle r={18 * px} fill="transparent" />
                 {isSel && <circle r={r + 6 * px} className="sel-ring" strokeWidth={1.6 * px} />}
                 <circle r={r} className="lamp" strokeWidth={2 * px} />

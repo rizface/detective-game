@@ -38,7 +38,7 @@ type Stats struct {
 	// minute aloud-ish (teams read together and discuss) plus time to decide
 	// each action.
 	EstimatedMinutes int `json:"estimatedMinutes"`
-	ExhaustiveActive int `json:"exhaustiveActiveMinutes"` // in-game minutes to see everything
+	ExhaustiveActive int `json:"exhaustiveActiveMinutes"` // in-game minutes spent on actions that revealed something
 }
 
 // Validate runs static checks and a reachability simulation: a tireless team
@@ -119,6 +119,7 @@ func Simulate(c *casefmt.Case) simResult {
 		words += countWords(c.Chapters[0].Brief)
 	}
 	meaningful := 0
+	usefulMinutes := 0
 	readDocs := map[string]bool{}
 	readPeople := map[string]bool{}
 	searched := map[string]bool{}
@@ -137,6 +138,7 @@ func Simulate(c *casefmt.Case) simResult {
 		}
 		if useful || len(out.Directory) > 0 {
 			meaningful++
+			usefulMinutes += out.Minutes
 		}
 		for _, d := range out.Directory {
 			corpus.WriteString(d.Name + " " + d.Address + " " + d.Note + "\n")
@@ -261,7 +263,7 @@ func Simulate(c *casefmt.Case) simResult {
 		}
 	}
 	sort.SliceStable(is, func(i, j int) bool { return is[i].Where < is[j].Where })
-	return simResult{issues: is, words: words, active: st.Active, actions: meaningful, state: st}
+	return simResult{issues: is, words: words, active: usefulMinutes, actions: meaningful, state: st}
 }
 
 // addressStem is the number and street words without the suffix, normalised

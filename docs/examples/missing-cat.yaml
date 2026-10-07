@@ -1,0 +1,186 @@
+slug: missing-cat
+title: The Missing Cat
+clock:
+  start: 1985-10-14T08:00
+  dayStartHour: 8
+  dayEndHour: 23
+  travelBase: 20
+  travelPerUnit: 10
+  interviewMinutes: 15
+  searchMinutes: 10
+  parMinutes: 300
+intro: Mrs. Edna Gray has written to you. Her cat Mittens is missing. She lives at 12 Elm Street.
+start:
+  locations:
+  - office
+  documents:
+  - letter
+chapters:
+- id: one
+  title: The Cat
+  brief: Find the cat.
+- id: two
+  title: The Truth
+  requires: doc:collar
+  brief: The cat was taken.
+map:
+  width: 1000
+  height: 1000
+  districts:
+  - id: d
+    name: Downtown
+    points:
+    - - 0
+      - 0
+    - - 1000
+      - 0
+    - - 1000
+      - 1000
+    - - 0
+      - 1000
+    label:
+    - 500
+    - 500
+  streets:
+  - name: Elm Street
+    points:
+    - - 0
+      - 100
+    - - 1000
+      - 100
+  - name: Oak Avenue
+    points:
+    - - 0
+      - 200
+    - - 1000
+      - 200
+locations:
+- id: office
+  name: Your Office
+  address: 1 Oak Ave
+  district: d
+  x: 100
+  y: 200
+  kind: office
+  visits:
+  - id: office1
+    text: Your office smells of old coffee.
+  summary: Your office.
+- id: home
+  name: Mrs. Gray's House
+  address: 12 Elm Street
+  district: d
+  x: 900
+  y: 100
+  kind: home
+  hidden: true
+  visits:
+  - id: home1
+    text: Mrs. Gray is waiting. Ask Pike at the docks.
+    reveals:
+      people:
+      - gray
+      - pike
+      documents:
+      - collar
+  - id: home2
+    requires: flag:pike_talked
+    text: She gasps when you tell her.
+    reveals:
+      flags:
+      - told
+  presence:
+  - person: gray
+  summary: Mrs. Gray's house.
+- id: docks
+  name: The Docks
+  address: 3 Oak Ave
+  district: d
+  x: 600
+  y: 200
+  kind: pier
+  hidden: true
+  visits:
+  - id: docks1
+    text: Gulls.
+  presence:
+  - person: pike
+    requires: chapter>=2
+  summary: The docks.
+people:
+- id: gray
+  name: Edna Gray
+  role: Client
+  description: Cat owner.
+  fallback: '"I just want Mittens back."'
+  dialogue:
+  - id: gray_intro
+    topic: intro
+    text: '"Oh, detective!"'
+  - id: gray_pike
+    topic: person:pike
+    text: '"Pike? He fishes."'
+- id: pike
+  name: Sam Pike
+  role: Fisherman
+  description: Smells of fish.
+  fallback: '"Dunno."'
+  dialogue:
+  - id: pike_intro
+    topic: intro
+    text: '"What?"'
+    reveals:
+      flags:
+      - pike_talked
+  - id: pike_collar
+    topic: doc:collar
+    text: '"Fine. I took it."'
+    reveals:
+      flags:
+      - confessed
+documents:
+- id: letter
+  title: Letter
+  kind: letter
+  body: Dear detectives, please find Mittens. I live at 12 Elm Street. — Edna Gray
+- id: collar
+  title: Collar
+  kind: photo
+  body: A red collar.
+  askable: true
+directory:
+- name: Sam Pike
+  address: 3 Oak Ave
+  location: docks
+  note: Fisherman
+accusation:
+  intro: Who took the cat?
+  availableFrom: chapter>=2
+  maxAttempts: 2
+  questions:
+  - id: who
+    prompt: Who?
+    kind: person
+    required: true
+    points: 10
+    answer: pike
+    evidence:
+    - flag:confessed
+  - id: why
+    prompt: Why?
+    kind: choice
+    points: 5
+    options:
+    - id: a
+      label: Money
+    - id: b
+      label: Love
+    answer: b
+tagline: A five-minute example of the case format.
+blurb: Mrs. Gray has lost her cat. Learn how places, people, documents and the directory fit together.
+setting: Port Calloway, 1985
+difficulty: Easy
+estimatedMinutes: 10
+players: 1–6
+version: 1
+epilogue: Sam Pike took Mittens because he loved her. Mrs. Gray let him visit on Sundays.

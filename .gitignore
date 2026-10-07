@@ -7,3 +7,4 @@ dist/
 # Case sources are never committed: they spoil the story. Only sealed bundles are.
 cases-src/
 *.case.yaml
+dump.rdb

@@ -179,7 +179,7 @@ func NormalizeAddress(s string) string {
 				words[i] = v
 			}
 		}
-		if i == 1 && w == "pier" { // "Pier 9" style addresses keep their order
+		if i == 1 && w == "pier" { // "Pier 7" style addresses keep their order
 			words[i] = "pier"
 		}
 	}

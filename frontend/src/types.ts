@@ -57,7 +57,7 @@ export interface MapData {
   districts: { id: string; name: string; points: Point[]; label: Point; tone?: string; blurb?: string }[]
   water?: { name?: string; points: Point[] }[]
   parks?: { name?: string; points: Point[] }[]
-  streets: { name: string; kind?: string; points: Point[] }[]
+  streets: { name: string; kind?: string; dim?: boolean; points: Point[] }[]
 }
 
 export interface LocationView {

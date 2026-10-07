@@ -86,7 +86,8 @@ type District struct {
 
 type Street struct {
 	Name   string  `json:"name" yaml:"name"`
-	Kind   string  `json:"kind,omitempty" yaml:"kind,omitempty"` // "avenue", "street", "highway", "rail"
+	Kind   string  `json:"kind,omitempty" yaml:"kind,omitempty"` // "avenue", "street", "highway", "rail", "pier"
+	Dim    bool    `json:"dim,omitempty" yaml:"dim,omitempty"`   // drawn unlit: the lamps on it are out
 	Points []Point `json:"points" yaml:"points"`
 }
 
@@ -141,7 +142,7 @@ type Person struct {
 }
 
 // Dialogue is one answer. Topic is "intro" (first conversation), or a
-// reference such as "person:rosa", "doc:matchbook", "loc:pier9".
+// reference such as "person:pike", "doc:matchbook", "loc:docks".
 type Dialogue struct {
 	ID       string `json:"id" yaml:"id"`
 	Topic    string `json:"topic" yaml:"topic"`

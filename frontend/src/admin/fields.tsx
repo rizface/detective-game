@@ -95,7 +95,7 @@ export function Cond(p: { label?: string; value?: string; onChange: (v: string) 
     <label className="field">
       <span>
         {p.label ?? 'Requires'}
-        <em className="muted"> e.g. doc:ledger &amp; (visited:pier9 | flag:tailed) &amp; !met:rosa</em>
+        <em className="muted"> e.g. doc:letter &amp; (visited:docks | flag:tailed) &amp; !met:pike</em>
       </span>
       <input className="input mono" value={p.value ?? ''} placeholder="always" onChange={(e) => p.onChange(e.target.value)} />
     </label>

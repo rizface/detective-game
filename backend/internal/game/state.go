@@ -29,6 +29,12 @@ type State struct {
 func NewState(c *casefmt.Case) *State {
 	st := &State{Found: map[string]int{}}
 	st.Bind(c)
+	// Public places are on the map from the start; hidden ones must be found.
+	for _, l := range c.Locations {
+		if !l.Hidden {
+			st.mark("loc:" + l.ID)
+		}
+	}
 	st.apply(c.Start)
 	if len(c.Chapters) > 0 {
 		st.apply(c.Chapters[0].Reveals)

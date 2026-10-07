@@ -168,6 +168,9 @@
 .map-streets path.k-avenue { stroke: #e9a552; opacity: 0.9; }
 .map-streets path.k-highway { stroke: #6f8c96; opacity: 0.8; }
 .map-streets path.k-rail { stroke: #5b7179; stroke-dasharray: 10 6; opacity: 0.8; }
+.map-streets path.k-pier { stroke: #6f8c96; opacity: 0.9; }
+/* Streets whose lamps are out: drawn in cold gray, no glow. */
+.map-streets path.dim { stroke: #35525c; opacity: 0.9; }
 .map-street-names text {
   fill: #cfa36a;
   font-family: var(--serif);
@@ -635,3 +638,13 @@
 
 .board-drawer .segmented { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; margin-bottom: 0; }
 .board-drawer .segmented button { padding: 0.35rem 0.2rem; font-size: 0.85rem; justify-content: center; }
+
+@media (max-width: 600px) {
+  .game-body { grid-template-rows: 50vh 1fr; }
+  .docrow-date { display: none; }
+  .docrow-kind { width: 4.5rem; }
+  .loc-card .loc-address { margin-bottom: 0.3rem; }
+  .loc-card .loc-here { margin: 0.2rem 0; }
+  .panel-body { padding: 1rem 1rem 3rem; }
+  .outcome-head h2 { font-size: 1.7rem; }
+}

@@ -1,0 +1,41 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgres://detective:detective@postgres:5432/detective?sslmode=disable
+      REDIS_URL: redis://redis:6379/0
+      # Comma-separated emails that get the case editor. The first account
+      # ever created is an admin too.
+      ADMIN_EMAILS: ""
+      # Set to "true" when serving over HTTPS.
+      SECURE_COOKIES: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: detective
+      POSTGRES_PASSWORD: detective
+      POSTGRES_DB: detective
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U detective"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+volumes:
+  pgdata:

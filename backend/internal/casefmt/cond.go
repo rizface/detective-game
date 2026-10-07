@@ -10,8 +10,8 @@ import (
 // Conditions are small boolean expressions that gate scenes, dialogue,
 // presence and chapters. Examples:
 //
-//	doc:ledger & visited:pier9
-//	(met:rosa | flag:tailed) & !flag:arrested
+//	doc:letter & visited:docks
+//	(met:pike | flag:tailed) & !flag:arrested
 //	chapter>=2 & day>=3
 //
 // Atoms:

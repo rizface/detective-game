@@ -3,12 +3,19 @@
 //	casepack validate <case.yaml|case.json|case.dgcase>   check a case and print stats
 //	casepack seal <case.yaml> <out.dgcase>                validate, hash answers, seal
 //	casepack unseal <case.dgcase> <out.json>              recover the full case (spoilers!)
+//	casepack play <case> <script.txt>                     play a scripted path and check expectations
+//
+// A play script has one action per line:
+//
+//	travel <location-id>       address <typed address>     search <name>
+//	ask <person-id> <topic>    expect <condition>          # comment
 package main
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/rizface/detective-game/backend/internal/casefmt"
 	"github.com/rizface/detective-game/backend/internal/game"
@@ -50,10 +57,95 @@ func main() {
 		out, err := json.MarshalIndent(c, "", "  ")
 		check(err)
 		check(os.WriteFile(os.Args[3], out, 0o644))
+	case "play":
+		if len(os.Args) < 4 {
+			usage()
+		}
+		os.Exit(play(load(os.Args[2]), os.Args[3]))
 	default:
 		usage()
 	}
 }
+
+func play(c *casefmt.Case, script string) int {
+	data, err := os.ReadFile(script)
+	check(err)
+	e := game.NewEngine(c)
+	st := game.NewState(c)
+	failures := 0
+	for n, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		verb, rest, _ := strings.Cut(line, " ")
+		var out *game.Outcome
+		switch verb {
+		case "travel":
+			out, err = e.Travel(st, rest)
+		case "address":
+			out, err = e.TravelAddress(st, rest)
+		case "search":
+			out, err = e.Search(st, rest)
+		case "ask":
+			person, topic, _ := strings.Cut(rest, " ")
+			if topic == "" {
+				topic = "intro"
+			}
+			out, err = e.Ask(st, person, topic)
+		case "expect":
+			cond, perr := casefmt.ParseCond(rest)
+			if perr != nil {
+				fmt.Printf("%3d  !! bad condition: %v\n", n+1, perr)
+				failures++
+				continue
+			}
+			if !cond.Eval(stateFacts{st}) {
+				fmt.Printf("%3d  !! EXPECT FAILED: %s\n", n+1, rest)
+				failures++
+			}
+			continue
+		default:
+			fmt.Printf("%3d  !! unknown verb %q\n", n+1, verb)
+			failures++
+			continue
+		}
+		if err != nil {
+			fmt.Printf("%3d  !! %s: %v\n", n+1, line, err)
+			failures++
+			continue
+		}
+		var titles []string
+		for _, sc := range out.Scenes {
+			label := sc.ID
+			if sc.Repeat {
+				label += "(repeat)"
+			}
+			titles = append(titles, label)
+		}
+		fmt.Printf("%3d  %-40s +%3dm  day %d %s  %s", n+1, line, out.Minutes, st.Day(), st.Now().Format("15:04"), strings.Join(titles, ", "))
+		r := out.Revealed
+		if !r.Empty() {
+			fmt.Printf("  => docs%v locs%v people%v flags%v", r.Documents, r.Locations, r.People, r.Flags)
+		}
+		if len(out.Chapters) > 0 {
+			fmt.Printf("  ** CHAPTER %v", out.Chapters)
+		}
+		fmt.Println()
+	}
+	fmt.Printf("\nchapter %d · active %d min · %d actions · %d docs · %d failures\n",
+		st.Chapter+1, st.Active, st.Actions, len(st.IDs("doc")), failures)
+	if failures > 0 {
+		return 1
+	}
+	return 0
+}
+
+type stateFacts struct{ s *game.State }
+
+func (f stateFacts) Has(kind, id string) bool { return f.s.Has(kind, id) }
+func (f stateFacts) Chapter() int             { return f.s.ChapterNum() }
+func (f stateFacts) Day() int                 { return f.s.Day() }
 
 func load(path string) *casefmt.Case {
 	data, err := os.ReadFile(path)
@@ -91,6 +183,6 @@ func check(err error) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: casepack validate|seal|unseal <in> [out]")
+	fmt.Fprintln(os.Stderr, "usage: casepack validate|seal|unseal|play <in> [out|script]")
 	os.Exit(2)
 }
