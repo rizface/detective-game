@@ -1,0 +1,64 @@
+.admin-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; }
+.admin-table th, .admin-table td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.admin-table th { font-family: var(--display); font-weight: 700; color: var(--rain); }
+.admin-new { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+.admin-new h3 { margin-bottom: 0.6rem; }
+@media (max-width: 760px) { .admin-new { grid-template-columns: 1fr; } }
+
+.sealed { max-width: 40rem; }
+.sealed h1 { margin-bottom: 1rem; }
+
+.mono { font-family: var(--type); font-size: 0.92rem; }
+
+.editor { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+.editor-bar { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 1rem; background: var(--night-2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.editor-title { font-family: var(--display); font-size: 1.3rem; }
+.editor-msg { color: var(--ok); }
+.editor-main { display: grid; grid-template-columns: 11rem 1fr 18rem; min-height: 0; }
+.editor-nav { border-right: 1px solid var(--line); padding: 0.75rem 0; display: grid; align-content: start; overflow-y: auto; }
+.editor-nav button { background: none; border: 0; text-align: left; padding: 0.45rem 1rem; cursor: pointer; font-family: var(--display); font-weight: 700; font-size: 1.05rem; color: var(--rain); }
+.editor-nav button.on { color: var(--mist); background: var(--night-3); box-shadow: inset 3px 0 var(--sodium); }
+.editor-nav .danger { margin-top: 2rem; color: #ff8a73; font-size: 0.9rem; }
+.editor-content { overflow-y: auto; padding: 1.25rem 1.5rem 4rem; min-width: 0; }
+.editor-report { border-left: 1px solid var(--line); padding: 1rem; overflow-y: auto; background: var(--night-2); }
+.editor-report h3 { margin-bottom: 0.5rem; }
+.stats { display: grid; grid-template-columns: auto 1fr; gap: 0.2rem 0.8rem; font-size: 0.9rem; margin: 0 0 1rem; }
+.stats dt { color: var(--rain); }
+.stats dd { margin: 0; }
+.issues { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; font-size: 0.85rem; }
+.issues li { border-left: 3px solid var(--sodium); padding-left: 0.5rem; }
+.issues li.error { border-left-color: #ff6b57; }
+.issues strong { display: block; font-family: var(--type); font-weight: 400; color: var(--rain); }
+
+@media (max-width: 1100px) {
+  .editor-main { grid-template-columns: 9rem 1fr; }
+  .editor-report { display: none; }
+}
+
+.form { max-width: 56rem; }
+.form-h { margin: 1.5rem 0 0.4rem; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 1rem; }
+@media (max-width: 760px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+.check { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+fieldset.reveal, fieldset.sub { border: 1px solid var(--line); border-radius: var(--r-sm); padding: 0.75rem 1rem 0.25rem; margin: 0 0 1rem; }
+fieldset legend { font-family: var(--display); font-weight: 700; color: var(--rain); padding: 0 0.4rem; }
+.scene-edit { background: rgba(0, 0, 0, 0.12); padding-bottom: 0.75rem; }
+.field em { font-style: normal; font-size: 0.8rem; }
+.json { min-height: 60vh; font-size: 0.85rem; white-space: pre; }
+
+.list-editor { display: grid; grid-template-columns: 15rem 1fr; gap: 1.5rem; }
+.list-side { display: grid; align-content: start; gap: 0.5rem; }
+.list-side ul { list-style: none; margin: 0; padding: 0; max-height: 65vh; overflow-y: auto; }
+.list-side li button { width: 100%; text-align: left; background: none; border: 0; padding: 0.35rem 0.5rem; cursor: pointer; border-radius: var(--r-sm); font-size: 0.95rem; }
+.list-side li button.on { background: var(--night-3); color: var(--sodium); }
+.list-tools { margin-bottom: 1rem; }
+.btn.danger { color: #ff8a73; }
+@media (max-width: 900px) { .list-editor { grid-template-columns: 1fr; } .list-side ul { max-height: 30vh; } }
+
+.dir-table td { padding: 0.25rem; }
+.dir-table .input, .dir-table .select { padding: 0.35em 0.45em; font-size: 0.88rem; }
+
+.minimap { width: 100%; max-width: 32rem; display: block; margin: 0 0 1rem; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.minimap.big { max-width: none; }
+.minimap.pick { cursor: crosshair; }

@@ -1,0 +1,230 @@
+/* Night Shift — a port city under sodium streetlights.
+   One loud element: the lit city map. Everything else stays quiet. */
+
+:root {
+  --night: #0e1d25;      /* harbor at 2 a.m. */
+  --night-2: #13272f;    /* panels */
+  --night-3: #1b3540;    /* raised surfaces */
+  --line: #2a4955;       /* rules, borders */
+  --rain: #8fb3bf;       /* secondary text */
+  --mist: #dde5e2;       /* primary text */
+  --sodium: #f0a03c;     /* streetlight: the one accent */
+  --sodium-soft: rgba(240, 160, 60, 0.16);
+  --paper: #e8dec6;      /* documents */
+  --paper-2: #d9cba9;
+  --ink: #2b2620;
+  --stamp: #b3342b;      /* rubber stamp red: only for the final report */
+  --ok: #8fbf7f;
+
+  --display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+
+  --r-sm: 3px;
+  --r-md: 6px;
+
+  color-scheme: dark;
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--mist);
+  background: var(--night);
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body { background: var(--night); }
+
+h1, h2, h3, h4 {
+  font-family: var(--display);
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+h1 { font-size: 3rem; font-weight: 800; }
+h2 { font-size: 1.9rem; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.1rem; }
+
+p { margin: 0 0 0.85em; }
+a { color: var(--sodium); text-underline-offset: 3px; }
+a:hover { color: #ffbd6b; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--sodium);
+  outline-offset: 2px;
+}
+
+::selection { background: var(--sodium); color: var(--night); }
+
+/* --- buttons ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  padding: 0.55em 1.05em 0.5em;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--night-3);
+  color: var(--mist);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.12s, border-color 0.12s;
+}
+.btn:hover:not(:disabled) { border-color: var(--rain); color: var(--mist); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.primary {
+  background: var(--sodium);
+  border-color: var(--sodium);
+  color: #1c1305;
+}
+.btn.primary:hover:not(:disabled) { background: #ffb352; color: #1c1305; }
+.btn.ghost { background: transparent; }
+.btn.small { font-size: 0.92rem; padding: 0.35em 0.7em 0.3em; }
+.btn.stamp {
+  background: transparent;
+  color: var(--stamp);
+  border: 2px solid var(--stamp);
+  font-size: 1.25rem;
+}
+.btn.stamp:hover:not(:disabled) { background: var(--stamp); color: var(--paper); border-color: var(--stamp); }
+
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--sodium);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font: inherit;
+}
+
+/* --- forms -------------------------------------------------------------- */
+
+.field { display: grid; gap: 0.3rem; margin-bottom: 1rem; }
+.field > span { font-size: 0.9rem; color: var(--rain); }
+.input, .textarea, .select {
+  width: 100%;
+  background: var(--night);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 0.55em 0.7em;
+  color: var(--mist);
+}
+.input:focus, .textarea:focus, .select:focus { border-color: var(--sodium); outline: none; }
+.textarea { resize: vertical; min-height: 5em; line-height: 1.45; }
+
+.error-text { color: #ff8a73; font-size: 0.95rem; }
+.muted { color: var(--rain); }
+.small { font-size: 0.88rem; }
+
+/* --- markdown prose ------------------------------------------------------ */
+
+.prose { font-size: 1.04rem; line-height: 1.65; max-width: 68ch; }
+.prose p { margin: 0 0 0.9em; }
+.prose em { color: #f3e7cf; }
+.prose strong { color: #fff4dd; font-weight: 600; }
+.prose blockquote {
+  margin: 0 0 1em;
+  padding-left: 1em;
+  border-left: 2px solid var(--sodium);
+  color: #efe7d6;
+}
+.prose ul, .prose ol { padding-left: 1.3em; margin: 0 0 1em; }
+.prose hr { border: 0; border-top: 1px solid var(--line); margin: 1.4em 0; }
+.prose table { border-collapse: collapse; margin: 0 0 1em; font-size: 0.95em; }
+.prose th, .prose td { border-bottom: 1px solid var(--line); padding: 0.3em 0.8em 0.3em 0; text-align: left; vertical-align: top; }
+
+/* Documents are paper. */
+.paper {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--type);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  padding: 2rem 2.2rem 2.4rem;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 18px 40px rgba(0, 0, 0, 0.45);
+  position: relative;
+}
+.paper .prose { font-size: inherit; line-height: inherit; max-width: none; }
+.paper .prose em { color: inherit; }
+.paper .prose strong { color: #120f0b; font-weight: 700; }
+.paper .prose blockquote { border-left-color: var(--ink); color: inherit; }
+.paper .prose th, .paper .prose td { border-bottom-color: rgba(43, 38, 32, 0.25); }
+.paper .prose hr { border-top-color: rgba(43, 38, 32, 0.3); }
+.paper .prose code { font-family: var(--type); background: rgba(43, 38, 32, 0.08); padding: 0 0.2em; }
+.paper .prose pre { white-space: pre-wrap; font-family: var(--type); margin: 0 0 1em; }
+.paper.kind-newspaper, .paper.kind-clipping { font-family: var(--serif); background: #ddd5c0; }
+.paper.kind-newspaper h1, .paper.kind-newspaper h2, .paper.kind-clipping h2 { font-family: var(--display); }
+.paper.kind-photo {
+  background: #1a1a1a;
+  color: #e8e2d4;
+  font-family: var(--serif);
+  font-style: italic;
+  border: 14px solid #f1ede4;
+  border-bottom-width: 46px;
+}
+.paper.kind-photo .prose strong { color: #fff; }
+.paper.kind-telegram { background: #efe2b3; }
+.paper.kind-card { background: #f3efe6; }
+.paper.kind-receipt, .paper.kind-ticket { background: #f4f1ea; max-width: 30rem; }
+.paper.kind-ledger, .paper.kind-phone, .paper.kind-record { background: #e3e8de; }
+
+/* --- layout helpers -------------------------------------------------------- */
+
+.page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+.row { display: flex; gap: 0.75rem; align-items: center; }
+.row.wrap { flex-wrap: wrap; }
+.spacer { flex: 1; }
+.stack > * + * { margin-top: 0.75rem; }
+
+.toasts {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  display: grid;
+  gap: 0.5rem;
+  z-index: 100;
+  width: min(30rem, calc(100vw - 2rem));
+}
+.toast {
+  background: var(--night-3);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--sodium);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--r-sm);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.toast.error { border-left-color: #ff6b57; }
+
+.dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--sodium);
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

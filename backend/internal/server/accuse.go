@@ -89,7 +89,6 @@ func (s *Server) mutateDraft(w http.ResponseWriter, r *http.Request, fn func(l *
 		writeErr(w, err)
 		return
 	}
-	d.UpdatedBy = u.ID
 	d.Version++
 	out, _ := json.Marshal(d)
 	if _, err := l.tx.Exec(ctx, `UPDATE teams SET draft = $2 WHERE id = $1`, l.team.ID, out); err != nil {
@@ -146,6 +145,7 @@ func (s *Server) updateDraft(w http.ResponseWriter, r *http.Request) {
 		d.Answers = clean
 		if changed {
 			d.Signed = []string{}
+			d.UpdatedBy = currentUser(r).ID
 		}
 		return nil
 	})
