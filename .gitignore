@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+.env
+/backend/bin/
+.DS_Store
+# Case sources are never committed: they spoil the story. Only sealed bundles are.
+cases-src/
+*.case.yaml
