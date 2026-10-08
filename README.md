@@ -36,6 +36,9 @@ Cloudflare Tunnel, ngrok…) and set `SECURE_COOKIES=true`.
   you read it.
 - **Time counts.** Every trip, question and lookup moves the clock. Days end at 11 p.m. Your final score
   compares your time against a sharp agency's, so talk it over before you move.
+- **Notes.** The notepad is docked under whatever you're reading; drag its top edge to resize it, or press `N` to
+  start writing. Select any passage in a scene, document, dossier or interview to save it as a quote; the note
+  links back to where it came from and remembers where you were and when. Enter saves, Shift+Enter adds a line.
 - **Evidence board.** Pin documents, people, places and notes, and string them together. Teammates see cards
   move as you drag them.
 - **Sound** is off until you turn it on with the speaker button in the top bar: rain and harbor in the

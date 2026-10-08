@@ -202,6 +202,10 @@ export interface Note {
   id: string
   authorId: string | null
   body: string
+  quote: string
+  source: string // doc:ID, person:ID, loc:ID, event:N, chapter:ID, case:intro
+  clock: number // in-game minutes when written
+  loc: string // where the team was
   createdAt: string
   updatedAt: string
 }

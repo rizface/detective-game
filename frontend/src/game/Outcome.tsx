@@ -46,7 +46,7 @@ export default function OutcomeView({ event }: { event: EventRow }) {
   const r = o.revealed ?? {}
 
   return (
-    <article className="outcome">
+    <article className="outcome" data-note-source={`event:${event.id}`}>
       <header className="outcome-head">
         <h2>{headline(snap, o)}</h2>
         <p className="outcome-meta">

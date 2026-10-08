@@ -18,6 +18,8 @@ import Dossier from './Dossier'
 import Interview from './Interview'
 import Board from './Board'
 import { useGameSounds } from '../sound/useGameSounds'
+import NotesDock from './notes/NotesDock'
+import QuoteToNote from './notes/QuoteToNote'
 import './game.css'
 
 const TABS: { id: Tab; label: string }[] = [
@@ -37,6 +39,21 @@ export default function GamePage() {
   const [talkTo, setTalkTo] = useState<string | null>(null)
   useTeamSocket(teamId)
   useGameSounds()
+
+  // N opens the notepad from anywhere (unless you're already typing).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'n' && e.key !== 'N') return
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      if ((e.target as HTMLElement)?.closest?.('input, textarea, select, [contenteditable="true"]')) return
+      e.preventDefault()
+      const s = useGame.getState()
+      if (s.tab === 'notes') s.setTab('scene')
+      s.focusJot()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   useEffect(() => {
     if (teamId) g.load(teamId)
@@ -75,6 +92,10 @@ export default function GamePage() {
             onSelect={g.selectLoc}
           />
           {g.selectedLoc && <LocationCard id={g.selectedLoc} onTalk={setTalkTo} />}
+          {/* Readers cover the map, not the side panel, so notes stay in reach. */}
+          {g.openDoc && <DocReader id={g.openDoc} />}
+          {g.openPerson && <Dossier id={g.openPerson} onTalk={setTalkTo} />}
+          {talkTo && <Interview person={talkTo} onClose={() => setTalkTo(null)} />}
         </section>
         <aside className="game-panel">
           <nav className="tabs" role="tablist">
@@ -104,11 +125,10 @@ export default function GamePage() {
             {g.tab === 'log' && <LogTab />}
             {g.tab === 'report' && <ReportTab />}
           </div>
+          {g.tab !== 'notes' && !g.boardOpen && <NotesDock />}
         </aside>
       </div>
-      {g.openDoc && <DocReader id={g.openDoc} />}
-      {g.openPerson && <Dossier id={g.openPerson} onTalk={setTalkTo} />}
-      {talkTo && <Interview person={talkTo} onClose={() => setTalkTo(null)} />}
+      <QuoteToNote />
       {g.boardOpen && <Board />}
       <div className="toasts" aria-live="polite">
         {g.toasts.map((t) => (

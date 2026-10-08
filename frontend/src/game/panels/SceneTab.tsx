@@ -23,7 +23,7 @@ export default function SceneTab({ onTalk }: { onTalk: (p: string) => void }) {
     <div className="scene-tab">
       <div ref={top} />
       {!event && (
-        <article className="outcome">
+        <article className="outcome" data-note-source="case:intro">
           <header className="outcome-head">
             <h2>{snap.case.title}</h2>
             {snap.case.setting && <p className="outcome-meta">{snap.case.setting}</p>}

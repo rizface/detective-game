@@ -15,6 +15,8 @@ export default function DocReader({ id }: { id: string }) {
   useEffect(() => {
     sendLive('viewing', { ref: `doc:${id}` })
     const onKey = (e: KeyboardEvent) => {
+      const typing = (e.target as HTMLElement)?.closest?.('input, textarea, select')
+      if (typing) return
       if (e.key === 'Escape') showDoc(null)
       if (e.key === 'ArrowLeft' && i > 0) showDoc(docs[i - 1].id)
       if (e.key === 'ArrowRight' && i < docs.length - 1) showDoc(docs[i + 1].id)
@@ -55,7 +57,7 @@ export default function DocReader({ id }: { id: string }) {
             Close
           </button>
         </div>
-        <article className={`paper kind-${d.kind}`}>
+        <article className={`paper kind-${d.kind}`} data-note-source={`doc:${d.id}`}>
           <header className="paper-head">
             <h2>{d.title}</h2>
             {d.date && <p className="paper-date">{d.date}</p>}

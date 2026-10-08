@@ -273,8 +273,8 @@ function Card(props: {
     title = l?.name ?? 'Unknown place'
   } else if (it.refKind === 'note') {
     const n = snap.notes.find((x) => x.id === it.refId)
-    kind = 'Note'
-    title = n?.body ?? ''
+    kind = n?.quote && !n.body ? 'Quote' : 'Note'
+    title = n ? n.body || `“${n.quote}”` : ''
   }
 
   return (

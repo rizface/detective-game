@@ -1,0 +1,170 @@
+/* ===== the docked notepad ===== */
+
+.notes-dock {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-top: 1px solid var(--line);
+  background: #102229;
+  box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.25);
+}
+.notes-dock.flash .dock-head { background: var(--sodium-soft); }
+.dock-grip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -5px;
+  height: 10px;
+  cursor: ns-resize;
+  touch-action: none;
+  z-index: 2;
+}
+.dock-grip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 4px;
+  width: 36px;
+  height: 3px;
+  margin-left: -18px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.dock-grip:hover::after { background: var(--sodium); }
+.dock-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.9rem 0.35rem;
+  transition: background 0.3s;
+}
+.dock-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--mist);
+}
+.dock-caret { display: inline-block; transition: transform 0.15s; color: var(--rain); }
+.dock-caret.open { transform: rotate(90deg); }
+.dock-hint { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notes-dock .dock-list { flex: 1; min-height: 0; overflow-y: auto; margin: 0; padding: 0.2rem 0.9rem 0.6rem; align-content: start; }
+.dock-empty { padding: 0.3rem 0; }
+
+@media (max-width: 1200px) {
+  .dock-hint { display: none; }
+}
+
+/* On narrow screens the notepad floats over everything, so it's reachable
+   from inside documents and interviews too. */
+@media (max-width: 900px) {
+  .notes-dock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    max-height: 60vh;
+  }
+  .notes-dock:not(.collapsed) { height: 50vh !important; }
+  .game-panel .panel-body { padding-bottom: 6rem; }
+  .dock-grip { display: none; }
+}
+
+/* ===== composer ===== */
+
+.composer { padding: 0.4rem 0.9rem 0.7rem; border-top: 1px solid rgba(42, 73, 85, 0.6); }
+.notes .composer { padding: 0; border-top: 0; margin-bottom: 0.5rem; }
+.composer-row { display: flex; gap: 0.5rem; align-items: flex-end; }
+.composer-box { min-height: 2.4rem; resize: none; overflow-y: auto; line-height: 1.4; }
+.composer-quote {
+  position: relative;
+  margin-bottom: 0.45rem;
+  padding: 0.4rem 1.8rem 0.4rem 0.7rem;
+  border-left: 2px solid var(--sodium);
+  background: rgba(240, 160, 60, 0.07);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.composer-quote p { margin: 0 0 0.15rem; font-style: italic; font-size: 0.92rem; color: #f3e7cf; }
+.composer-quote-x {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.35rem;
+  background: none;
+  border: 0;
+  color: var(--rain);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+/* ===== notes with quotes ===== */
+
+.note-quote {
+  margin: 0 0 0.45rem;
+  padding: 0.1rem 0 0.1rem 0.75rem;
+  border-left: 2px solid var(--sodium);
+}
+.note-quote p { margin: 0 0 0.2rem; font-style: italic; color: #f3e7cf; white-space: pre-wrap; }
+.note-source {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--sodium);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.note-meta { flex-wrap: wrap; row-gap: 0.1rem; }
+.note-when { white-space: nowrap; }
+.note.compact { padding: 0.5rem 0.7rem 0.35rem; }
+.note.compact .note-body { margin-bottom: 0.25rem; font-size: 0.95rem; }
+.note.compact .note-quote p { font-size: 0.93rem; }
+
+/* ===== the selection bar ===== */
+
+.quote-bar {
+  position: fixed;
+  z-index: 90;
+  display: flex;
+  background: #1f3b46;
+  border: 1px solid var(--sodium);
+  border-radius: var(--r-md);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+.quote-bar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  margin-left: -6px;
+  border: 6px solid transparent;
+}
+.quote-bar.above::after { top: 100%; border-top-color: var(--sodium); }
+.quote-bar.below::after { bottom: 100%; border-bottom-color: var(--sodium); }
+.quote-bar button {
+  flex: 1;
+  background: none;
+  border: 0;
+  padding: 0.5rem 0.4rem 0.45rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--mist);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.quote-bar button + button { border-left: 1px solid var(--line); }
+.quote-bar button:hover { background: var(--sodium); color: #1c1305; }
+
+/* Quoted text stands out when selected. */
+[data-note-source] ::selection, [data-note-source]::selection { background: var(--sodium); color: #1c1305; }
+.paper [data-note-source] ::selection, .paper::selection, .paper ::selection { background: #f0c27a; color: var(--ink); }

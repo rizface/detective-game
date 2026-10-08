@@ -29,7 +29,7 @@ export default function CaseFileTab() {
       {chapters.map((ch) => {
         const n = snap.game.chapters.indexOf(ch) + 1
         return (
-          <section key={ch.id} className="casefile-chapter">
+          <section key={ch.id} className="casefile-chapter" data-note-source={`chapter:${ch.id}`}>
             <p className="chapter-mark">Chapter {n}</p>
             <h2>{ch.title}</h2>
             <Prose text={ch.brief} />
@@ -47,7 +47,7 @@ export default function CaseFileTab() {
         )
       })}
 
-      <section className="casefile-chapter">
+      <section className="casefile-chapter" data-note-source="case:intro">
         <p className="chapter-mark">How it began</p>
         <h2>{snap.case.title}</h2>
         <Prose text={snap.case.intro} />

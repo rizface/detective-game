@@ -29,7 +29,10 @@ export default function Dossier({ id, onTalk }: { id: string; onTalk: (p: string
 
   useEffect(() => {
     sendLive('viewing', { ref: `person:${id}` })
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && showPerson(null)
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest?.('input, textarea, select')) return
+      if (e.key === 'Escape') showPerson(null)
+    }
     window.addEventListener('keydown', onKey)
     return () => {
       window.removeEventListener('keydown', onKey)
@@ -55,7 +58,9 @@ export default function Dossier({ id, onTalk }: { id: string; onTalk: (p: string
             Close
           </button>
         </header>
-        <Prose text={p.description} />
+        <div data-note-source={`person:${p.id}`}>
+          <Prose text={p.description} />
+        </div>
         <div className="row">
           {here && (
             <button
@@ -80,9 +85,9 @@ export default function Dossier({ id, onTalk }: { id: string; onTalk: (p: string
         </div>
         <h3 className="dossier-sub">What they've told you</h3>
         {lines.length === 0 && <p className="muted small">You haven't spoken yet.</p>}
-        <ol className="transcript">
+        <ol className="transcript" data-note-source={`person:${p.id}`}>
           {lines.map((l) => (
-            <li key={l.id}>
+            <li key={l.id} data-note-source={`event:${l.event}`}>
               <p className="transcript-topic">{topicLabel(snap, l.topic)}</p>
               <Prose text={l.text} />
             </li>
