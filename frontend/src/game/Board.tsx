@@ -285,6 +285,9 @@ function Card(props: {
       onPointerDown={props.onPointerDown}
     >
       <span className="card-pin" />
+      <button className="card-x" onClick={props.onRemove} aria-label="Unpin from the board" title="Unpin from the board">
+        ×
+      </button>
       {it.refKind === 'person' && <span className="avatar">{initials(title)}</span>}
       {it.refKind !== 'text' && <p className="card-kind">{kind}</p>}
       {it.refKind !== 'text' && (
@@ -314,9 +317,7 @@ function Card(props: {
         {it.refKind !== 'text' && it.refKind !== 'note' && <button onClick={props.onOpen}>Open</button>}
         <button onClick={() => setEditing(true)}>{it.refKind === 'text' ? 'Edit' : 'Annotate'}</button>
         <button onClick={props.onString}>String</button>
-        <button onClick={props.onRemove} aria-label="Remove card">
-          Remove
-        </button>
+        <button onClick={props.onRemove}>Unpin</button>
       </div>
     </div>
   )
@@ -324,6 +325,7 @@ function Card(props: {
 
 function BoardDrawer({ pinned, onAdd }: { pinned: Set<string>; onAdd: (card: Partial<BoardItem>) => void }) {
   const snap = useGame((s) => s.snap)!
+  const unpin = useGame((s) => s.unpin)
   const [tab, setTab] = useState<'doc' | 'person' | 'loc' | 'note'>('doc')
   const [text, setText] = useState('')
   const entries =
@@ -362,8 +364,12 @@ function BoardDrawer({ pinned, onAdd }: { pinned: Set<string>; onAdd: (card: Par
           return (
             <li key={e.id}>
               <span>{e.label}</span>
-              <button className="btn small ghost" disabled={on} onClick={() => onAdd({ refKind: tab, refId: e.id })}>
-                {on ? 'Pinned' : 'Pin'}
+              <button
+                className={`btn small ghost ${on ? 'is-pinned' : ''}`}
+                aria-pressed={on}
+                onClick={() => (on ? unpin(tab, e.id) : onAdd({ refKind: tab, refId: e.id }))}
+              >
+                {on ? 'Unpin' : 'Pin'}
               </button>
             </li>
           )

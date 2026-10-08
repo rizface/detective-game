@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { Outcome } from '../types'
 import { useGame } from './store'
+import PinButton from './PinButton'
 import { sendLive } from './socket'
 import { Prose, initials, topicLabel } from './util'
 
@@ -21,8 +22,6 @@ export function useTranscript(personId: string) {
 export default function Dossier({ id, onTalk }: { id: string; onTalk: (p: string) => void }) {
   const snap = useGame((s) => s.snap)!
   const showPerson = useGame((s) => s.showPerson)
-  const addCard = useGame((s) => s.addCard)
-  const toast = useGame((s) => s.toast)
   const p = snap.game.people.find((x) => x.id === id)
   const lines = useTranscript(id)
   const here = snap.game.locations.find((l) => l.id === snap.game.current)?.present.includes(id)
@@ -73,15 +72,7 @@ export default function Dossier({ id, onTalk }: { id: string; onTalk: (p: string
               Talk to {p.name.split(' ')[0]}
             </button>
           )}
-          <button
-            className="btn small ghost"
-            onClick={async () => {
-              const it = await addCard({ refKind: 'person', refId: id, x: 400 + Math.random() * 600, y: 300 + Math.random() * 400 })
-              if (it) toast(`${p.name} pinned to the board`)
-            }}
-          >
-            Pin to board
-          </button>
+          <PinButton refKind="person" refId={id} name={p.name} pin="Pin to board" unpin="Unpin from board" />
         </div>
         <h3 className="dossier-sub">What they've told you</h3>
         {lines.length === 0 && <p className="muted small">You haven't spoken yet.</p>}

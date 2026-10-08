@@ -10,6 +10,7 @@ export interface Toast {
   id: number
   text: string
   tone: 'info' | 'error'
+  action?: { label: string; run: () => void }
 }
 
 interface GameState {
@@ -45,7 +46,7 @@ interface GameState {
   showDoc: (id: string | null) => void
   showPerson: (id: string | null) => void
   selectLoc: (id: string | null) => void
-  toast: (text: string, tone?: Toast['tone']) => void
+  toast: (text: string, tone?: Toast['tone'], action?: Toast['action']) => void
   dismissToast: (id: number) => void
 
   travel: (location: string) => Promise<void>
@@ -63,6 +64,8 @@ interface GameState {
   moveCard: (id: string, x: number, y: number) => Promise<void>
   labelCard: (id: string, label: string) => Promise<void>
   removeCard: (id: string) => Promise<void>
+  /** Takes whatever card shows this item off the board. */
+  unpin: (refKind: BoardItem['refKind'], refId: string) => Promise<void>
   link: (from: string, to: string, label?: string) => Promise<void>
   labelLink: (id: string, label: string) => Promise<void>
   unlink: (id: string) => Promise<void>
@@ -194,10 +197,10 @@ export const useGame = create<GameState>((set, get) => {
     },
     showPerson: (id) => set({ openPerson: id }),
     selectLoc: (id) => set({ selectedLoc: id }),
-    toast: (text, tone = 'info') => {
+    toast: (text, tone = 'info', action) => {
       const id = ++toastSeq
-      set({ toasts: [...get().toasts, { id, text, tone }] })
-      setTimeout(() => get().dismissToast(id), tone === 'error' ? 6000 : 4000)
+      set({ toasts: [...get().toasts, { id, text, tone, action }] })
+      setTimeout(() => get().dismissToast(id), tone === 'error' || action ? 7000 : 4000)
     },
     dismissToast: (id) => set({ toasts: get().toasts.filter((t) => t.id !== id) }),
 
@@ -302,12 +305,41 @@ export const useGame = create<GameState>((set, get) => {
       }
     },
     removeCard: async (id) => {
+      const snap = get().snap
+      const item = snap?.board.items.find((i) => i.id === id)
+      const links = snap?.board.links.filter((l) => l.from === id || l.to === id) ?? []
       try {
         await del(tp(`/board/items/${id}`))
         get().handleSocket({ type: 'board.item.delete', payload: { id } })
       } catch (e) {
         fail(e)
+        return
       }
+      if (!item) return
+      // Undo puts the card back where it was, with its strings to cards still on the board.
+      const undo = async () => {
+        try {
+          const back = await post<BoardItem>(tp('/board/items'), {
+            refKind: item.refKind, refId: item.refId, label: item.label, x: item.x, y: item.y,
+          })
+          get().handleSocket({ type: 'board.item', payload: back })
+          const onBoard = new Set(get().snap?.board.items.map((i) => i.id))
+          for (const l of links) {
+            const from = l.from === id ? back.id : l.from
+            const to = l.to === id ? back.id : l.to
+            if (!onBoard.has(from) || !onBoard.has(to)) continue
+            const nl = await post<BoardLink>(tp('/board/links'), { from, to, label: l.label })
+            get().handleSocket({ type: 'board.link', payload: nl })
+          }
+        } catch (e) {
+          fail(e)
+        }
+      }
+      get().toast(`Unpinned ${cardName(get().snap, item)}`, 'info', { label: 'Undo', run: undo })
+    },
+    unpin: async (refKind, refId) => {
+      const item = get().snap?.board.items.find((i) => i.refKind === refKind && i.refId === refId)
+      if (item) await get().removeCard(item.id)
     },
     link: async (from, to, label = '') => {
       try {
@@ -471,6 +503,29 @@ export const useGame = create<GameState>((set, get) => {
     },
   }
 })
+
+/** A short name for a board card, for messages. */
+export function cardName(snap: Snapshot | null, it: BoardItem): string {
+  if (!snap) return 'the card'
+  const q = (s: string) => `“${s.length > 40 ? s.slice(0, 40) + '…' : s}”`
+  switch (it.refKind) {
+    case 'doc':
+      return q(snap.game.documents.find((d) => d.id === it.refId)?.title ?? 'evidence')
+    case 'person':
+      return snap.game.people.find((p) => p.id === it.refId)?.name ?? 'a person'
+    case 'loc':
+      return snap.game.locations.find((l) => l.id === it.refId)?.name ?? 'a place'
+    case 'note':
+      return 'a note'
+    default:
+      return it.label ? q(it.label) : 'a card'
+  }
+}
+
+/** Whether an item is pinned on the board. */
+export function useIsPinned(refKind: BoardItem['refKind'], refId: string): boolean {
+  return useGame((s) => !!s.snap?.board.items.some((i) => i.refKind === refKind && i.refId === refId))
+}
 
 export function memberById(snap: Snapshot | null, id: string | null | undefined): Member | undefined {
   return snap?.members.find((m) => m.id === id)

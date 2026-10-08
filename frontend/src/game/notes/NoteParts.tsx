@@ -3,6 +3,7 @@ import type { Note, Snapshot } from '../../types'
 import { memberById, useGame } from '../store'
 import { eventSummary } from '../Outcome'
 import { clockAt, locName } from '../util'
+import PinButton from '../PinButton'
 
 /** A readable name for where a quote came from. */
 export function sourceLabel(snap: Snapshot, source: string): string {
@@ -37,7 +38,7 @@ export function noteContext(snap: Snapshot, n: Note): string {
 
 export function NoteItem({ note, compact = false }: { note: Note; compact?: boolean }) {
   const snap = useGame((s) => s.snap)!
-  const { editNote, removeNote, addCard, toast, openSource } = useGame.getState()
+  const { editNote, removeNote, openSource } = useGame.getState()
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(note.body)
   const author = memberById(snap, note.authorId)
@@ -89,15 +90,7 @@ export function NoteItem({ note, compact = false }: { note: Note; compact?: bool
           <button className="link-btn small" onClick={() => setEditing(true)}>
             {note.body ? 'Edit' : 'Comment'}
           </button>
-          <button
-            className="link-btn small"
-            onClick={async () => {
-              const it = await addCard({ refKind: 'note', refId: note.id, x: 300 + Math.random() * 600, y: 300 + Math.random() * 400 })
-              if (it) toast('Note pinned to the board')
-            }}
-          >
-            Pin
-          </button>
+          <PinButton refKind="note" refId={note.id} name="Note" className="link-btn small" />
           <button
             className="link-btn small"
             onClick={() => {

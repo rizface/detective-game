@@ -215,6 +215,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
   cursor: pointer;
 }
 .toast.error { border-left-color: #ff6b57; }
+.toast { display: flex; align-items: center; gap: 1rem; }
+.toast > span { flex: 1; }
+.toast-action {
+  background: none;
+  border: 1px solid var(--sodium);
+  color: var(--sodium);
+  border-radius: var(--r-sm);
+  padding: 0.2rem 0.7rem;
+  font-family: var(--display);
+  font-weight: 700;
+  cursor: pointer;
+}
+.toast-action:hover { background: var(--sodium); color: #1c1305; }
 
 .dot {
   display: inline-block;

@@ -133,7 +133,19 @@ export default function GamePage() {
       <div className="toasts" aria-live="polite">
         {g.toasts.map((t) => (
           <div key={t.id} className={`toast ${t.tone}`} onClick={() => g.dismissToast(t.id)}>
-            {t.text}
+            <span>{t.text}</span>
+            {t.action && (
+              <button
+                className="toast-action"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  g.dismissToast(t.id)
+                  t.action!.run()
+                }}
+              >
+                {t.action.label}
+              </button>
+            )}
           </div>
         ))}
       </div>

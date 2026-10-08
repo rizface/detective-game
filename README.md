@@ -40,7 +40,8 @@ Cloudflare Tunnel, ngrok…) and set `SECURE_COOKIES=true`.
   start writing. Select any passage in a scene, document, dossier or interview to save it as a quote; the note
   links back to where it came from and remembers where you were and when. Enter saves, Shift+Enter adds a line.
 - **Evidence board.** Pin documents, people, places and notes, and string them together. Teammates see cards
-  move as you drag them.
+  move as you drag them. Every Pin button turns into Unpin once the item is on the board; on the board, the ×
+  in a card's corner unpins it, and the message that follows has an Undo that brings back the card and its strings.
 - **Sound** is off until you turn it on with the speaker button in the top bar: rain and harbor in the
   background, a car door when you travel, a typewriter when evidence arrives, a piano chord for each new chapter.
   Everything is synthesized in the browser; there are no audio files. Each player's setting is saved in their own

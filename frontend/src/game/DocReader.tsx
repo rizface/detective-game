@@ -1,13 +1,12 @@
 import { useEffect } from 'react'
 import { useGame } from './store'
+import PinButton from './PinButton'
 import { sendLive } from './socket'
 import { KIND_LABEL, Prose } from './util'
 
 export default function DocReader({ id }: { id: string }) {
   const snap = useGame((s) => s.snap)!
   const showDoc = useGame((s) => s.showDoc)
-  const addCard = useGame((s) => s.addCard)
-  const toast = useGame((s) => s.toast)
   const docs = [...snap.game.documents].sort((a, b) => a.foundAt - b.foundAt)
   const i = docs.findIndex((d) => d.id === id)
   const d = docs[i]
@@ -38,15 +37,7 @@ export default function DocReader({ id }: { id: string }) {
             {d.source ? `, ${d.source}` : ''}
           </span>
           <span className="spacer" />
-          <button
-            className="btn small ghost"
-            onClick={async () => {
-              const it = await addCard({ refKind: 'doc', refId: d.id, x: 400 + Math.random() * 600, y: 300 + Math.random() * 400 })
-              if (it) toast('Pinned to the evidence board')
-            }}
-          >
-            Pin to board
-          </button>
+          <PinButton refKind="doc" refId={d.id} name={`“${d.title}”`} pin="Pin to board" unpin="Unpin from board" />
           <button className="btn small ghost" disabled={i <= 0} onClick={() => showDoc(docs[i - 1].id)} aria-label="Previous document">
             ‹
           </button>
