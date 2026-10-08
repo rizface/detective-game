@@ -18,20 +18,32 @@ type Note struct {
 	ID        string    `json:"id"`
 	AuthorID  *string   `json:"authorId"`
 	Body      string    `json:"body"`
+	Quote     string    `json:"quote"`
+	Source    string    `json:"source"`
+	Clock     int       `json:"clock"`
+	Loc       string    `json:"loc"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+const noteColumns = `id, author_id, body, quote, source, clock, at_loc, created_at, updated_at`
+
+func scanNote(row pgx.Row) (Note, error) {
+	var n Note
+	err := row.Scan(&n.ID, &n.AuthorID, &n.Body, &n.Quote, &n.Source, &n.Clock, &n.Loc, &n.CreatedAt, &n.UpdatedAt)
+	return n, err
+}
+
 func (s *Server) notes(ctx context.Context, teamID string) ([]Note, error) {
-	rows, err := s.pool.Query(ctx, `SELECT id, author_id, body, created_at, updated_at FROM notes WHERE team_id = $1 ORDER BY created_at`, teamID)
+	rows, err := s.pool.Query(ctx, `SELECT `+noteColumns+` FROM notes WHERE team_id = $1 ORDER BY created_at`, teamID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	out := []Note{}
 	for rows.Next() {
-		var n Note
-		if err := rows.Scan(&n.ID, &n.AuthorID, &n.Body, &n.CreatedAt, &n.UpdatedAt); err != nil {
+		n, err := scanNote(rows)
+		if err != nil {
 			return nil, err
 		}
 		out = append(out, n)
@@ -39,35 +51,93 @@ func (s *Server) notes(ctx context.Context, teamID string) ([]Note, error) {
 	return out, rows.Err()
 }
 
-func noteBody(s string) (string, error) {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return "", errStatus(400, "the note is empty")
+// noteText trims and checks a note's comment. A note needs a comment, a quote, or both.
+func noteText(body, quote string) (string, string, error) {
+	body = strings.TrimSpace(body)
+	quote = strings.Join(strings.Fields(quote), " ")
+	if body == "" && quote == "" {
+		return "", "", errStatus(400, "the note is empty")
 	}
-	if utf8.RuneCountInString(s) > 4000 {
-		return "", errStatus(400, "notes are limited to 4000 characters")
+	if utf8.RuneCountInString(body) > 4000 {
+		return "", "", errStatus(400, "notes are limited to 4000 characters")
 	}
-	return s, nil
+	if utf8.RuneCountInString(quote) > 2000 {
+		return "", "", errStatus(400, "quotes are limited to 2000 characters")
+	}
+	return body, quote, nil
+}
+
+// checkSource makes sure a quote's source is something the team has actually seen.
+func (s *Server) checkSource(ctx context.Context, teamID, src string, chapters []string, st interface {
+	Has(kind, id string) bool
+}, chapter int) error {
+	if src == "" {
+		return nil
+	}
+	kind, id, ok := strings.Cut(src, ":")
+	if !ok || id == "" || len(src) > 120 {
+		return errStatus(400, "bad note source")
+	}
+	switch kind {
+	case "doc", "person", "loc":
+		if st.Has(kind, id) {
+			return nil
+		}
+	case "event":
+		var exists bool
+		_ = s.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM team_events WHERE team_id = $1 AND id::text = $2)`, teamID, id).Scan(&exists)
+		if exists {
+			return nil
+		}
+	case "chapter":
+		for i, c := range chapters {
+			if c == id && i <= chapter {
+				return nil
+			}
+		}
+	case "case":
+		if id == "intro" {
+			return nil
+		}
+	}
+	return errStatus(422, "you can't quote something you haven't found")
 }
 
 func (s *Server) createNote(w http.ResponseWriter, r *http.Request) {
 	u, t := currentUser(r), teamFrom(r)
 	var in struct {
-		Body string `json:"body"`
+		Body   string `json:"body"`
+		Quote  string `json:"quote"`
+		Source string `json:"source"`
 	}
 	if err := decode(r, &in); err != nil {
 		writeErr(w, err)
 		return
 	}
-	body, err := noteBody(in.Body)
+	body, quote, err := noteText(in.Body, in.Quote)
 	if err != nil {
 		writeErr(w, err)
 		return
 	}
-	var n Note
-	err = s.pool.QueryRow(r.Context(), `INSERT INTO notes (team_id, author_id, body) VALUES ($1, $2, $3)
-		RETURNING id, author_id, body, created_at, updated_at`, t.ID, u.ID, body).
-		Scan(&n.ID, &n.AuthorID, &n.Body, &n.CreatedAt, &n.UpdatedAt)
+	eng, st, err := s.readTeam(r.Context(), t)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	if quote == "" {
+		in.Source = ""
+	}
+	chapters := make([]string, len(eng.Case.Chapters))
+	for i, c := range eng.Case.Chapters {
+		chapters[i] = c.ID
+	}
+	if err := s.checkSource(r.Context(), t.ID, in.Source, chapters, st, st.Chapter); err != nil {
+		writeErr(w, err)
+		return
+	}
+	n, err := scanNote(s.pool.QueryRow(r.Context(), `
+		INSERT INTO notes (team_id, author_id, body, quote, source, clock, at_loc) VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING `+noteColumns, t.ID, u.ID, body, quote, in.Source, st.Clock, st.Current))
 	if err != nil {
 		writeErr(w, err)
 		return
@@ -76,6 +146,7 @@ func (s *Server) createNote(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 201, n)
 }
 
+// updateNote edits a note's comment. The quote and where it came from don't change.
 func (s *Server) updateNote(w http.ResponseWriter, r *http.Request) {
 	u, t := currentUser(r), teamFrom(r)
 	var in struct {
@@ -85,15 +156,23 @@ func (s *Server) updateNote(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, err)
 		return
 	}
-	body, err := noteBody(in.Body)
+	var quote string
+	err := s.pool.QueryRow(r.Context(), `SELECT quote FROM notes WHERE id::text = $2 AND team_id = $1`, t.ID, chi.URLParam(r, "noteID")).Scan(&quote)
+	if errors.Is(err, pgx.ErrNoRows) {
+		writeErr(w, errNotFound)
+		return
+	}
 	if err != nil {
 		writeErr(w, err)
 		return
 	}
-	var n Note
-	err = s.pool.QueryRow(r.Context(), `UPDATE notes SET body = $3, updated_at = now() WHERE id::text = $2 AND team_id = $1
-		RETURNING id, author_id, body, created_at, updated_at`, t.ID, chi.URLParam(r, "noteID"), body).
-		Scan(&n.ID, &n.AuthorID, &n.Body, &n.CreatedAt, &n.UpdatedAt)
+	body, _, err := noteText(in.Body, quote)
+	if err != nil {
+		writeErr(w, err)
+		return
+	}
+	n, err := scanNote(s.pool.QueryRow(r.Context(), `UPDATE notes SET body = $3, updated_at = now() WHERE id::text = $2 AND team_id = $1
+		RETURNING `+noteColumns, t.ID, chi.URLParam(r, "noteID"), body))
 	if errors.Is(err, pgx.ErrNoRows) {
 		writeErr(w, errNotFound)
 		return

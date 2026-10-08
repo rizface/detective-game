@@ -33,6 +33,10 @@ interface GameState {
   busy: boolean
   toasts: Toast[]
   seenEvents: Set<number>
+  /** A quote waiting in the note composer for a comment. */
+  quoteDraft: { text: string; source: string } | null
+  /** Bumped to ask the note composer to focus itself. */
+  jotFocus: number
 
   load: (teamId: string) => Promise<void>
   reset: () => void
@@ -49,7 +53,10 @@ interface GameState {
   ask: (person: string, topic: string) => Promise<void>
   search: (query: string) => Promise<boolean>
 
-  addNote: (body: string) => Promise<Note | undefined>
+  addNote: (note: { body?: string; quote?: string; source?: string }) => Promise<Note | undefined>
+  attachQuote: (q: { text: string; source: string } | null) => void
+  focusJot: () => void
+  openSource: (source: string) => Promise<void>
   editNote: (id: string, body: string) => Promise<void>
   removeNote: (id: string) => Promise<void>
   addCard: (card: Partial<BoardItem>) => Promise<BoardItem | undefined>
@@ -155,6 +162,8 @@ export const useGame = create<GameState>((set, get) => {
     busy: false,
     toasts: [],
     seenEvents: new Set(),
+    quoteDraft: null,
+    jotFocus: 0,
 
     load: async (teamId) => {
       set({ teamId, loading: true, error: null })
@@ -207,13 +216,43 @@ export const useGame = create<GameState>((set, get) => {
     },
     search: (query) => run(() => post<Delta>(tp('/search'), { query })),
 
-    addNote: async (body) => {
+    addNote: async (note) => {
       try {
-        const n = await post<Note>(tp('/notes'), { body })
+        const n = await post<Note>(tp('/notes'), note)
         get().handleSocket({ type: 'note.upsert', payload: n })
         return n
       } catch (e) {
         fail(e)
+      }
+    },
+    attachQuote: (q) => set({ quoteDraft: q }),
+    focusJot: () => set({ jotFocus: get().jotFocus + 1 }),
+    openSource: async (source) => {
+      const [kind, id] = source.split(':')
+      const s = get()
+      if (kind === 'doc') s.showDoc(id)
+      else if (kind === 'person') s.showPerson(id)
+      else if (kind === 'loc') s.selectLoc(id)
+      else if (kind === 'chapter' || kind === 'case') set({ tab: 'file' })
+      else if (kind === 'event') {
+        const eventId = Number(id)
+        let snap = get().snap
+        if (snap && !snap.events.some((e) => e.id === eventId)) {
+          // Older than what's loaded: fetch the page that contains it.
+          try {
+            const page = await api<EventRow[]>(tp(`/events?before=${eventId + 1}`))
+            snap = get().snap
+            if (snap) {
+              const known = new Set(snap.events.map((e) => e.id))
+              const merged = [...page.filter((e) => !known.has(e.id)), ...snap.events].sort((a, b) => a.id - b.id)
+              set({ snap: { ...snap, events: merged } })
+            }
+          } catch (e) {
+            fail(e)
+            return
+          }
+        }
+        set({ focusEvent: eventId, tab: 'scene', openDoc: null, openPerson: null })
       }
     },
     editNote: async (id, body) => {

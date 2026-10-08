@@ -37,7 +37,10 @@ export default function Interview({ person, onClose }: { person: string; onClose
   }, [lines.length])
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest?.('input, textarea, select')) return
+      if (e.key === 'Escape') onClose()
+    }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
@@ -77,9 +80,9 @@ export default function Interview({ person, onClose }: { person: string; onClose
         </header>
 
         <div className="interview-body">
-          <ol className="transcript">
+          <ol className="transcript" data-note-source={`person:${p.id}`}>
             {lines.map((l) => (
-              <li key={l.id}>
+              <li key={l.id} data-note-source={`event:${l.event}`}>
                 <p className="transcript-topic">{l.topic === 'intro' ? 'First words' : `You ask about ${topicLabel(snap, l.topic)}`}</p>
                 <Prose text={l.text} />
               </li>
