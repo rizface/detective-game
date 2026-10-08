@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useGame } from './store'
 import { duration, gameTime, initials } from './util'
+import SoundControl from '../sound/SoundControl'
 
 export default function TopBar() {
   const snap = useGame((s) => s.snap)!
@@ -51,6 +52,7 @@ export default function TopBar() {
         ))}
       </ul>
       {socketState !== 'open' && <span className="conn muted small">Reconnecting…</span>}
+      <SoundControl />
       <button className="btn small ghost" onClick={copy} onContextMenu={(e) => { e.preventDefault(); setInviteOpen(true) }}>
         Invite
       </button>

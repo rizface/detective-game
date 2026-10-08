@@ -1,0 +1,60 @@
+.sound { position: relative; }
+.sound-btn { padding: 0.35em 0.5em; color: var(--rain); }
+.sound-btn.on { color: var(--sodium); border-color: rgba(240, 160, 60, 0.5); }
+.sound-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 16.5rem;
+  background: var(--night-2);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--sodium);
+  border-radius: var(--r-md);
+  padding: 0.9rem 1rem 0.4rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  z-index: 60;
+}
+.sound-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+}
+.sound-field { display: grid; gap: 0.3rem; margin-bottom: 0.8rem; font-size: 0.9rem; color: var(--rain); }
+.sound-field input[type='range'] { width: 100%; accent-color: var(--sodium); }
+.sound-check { font-size: 0.92rem; margin-bottom: 0.6rem; }
+.sound-check input { accent-color: var(--sodium); }
+
+/* A small switch for the on/off checkbox. */
+.toggle {
+  appearance: none;
+  width: 2.6rem;
+  height: 1.4rem;
+  border-radius: 0.7rem;
+  background: var(--line);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin: 0;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 0.17rem;
+  left: 0.17rem;
+  width: 1.06rem;
+  height: 1.06rem;
+  border-radius: 50%;
+  background: var(--mist);
+  transition: transform 0.15s;
+}
+.toggle:checked { background: var(--sodium); }
+.toggle:checked::after { transform: translateX(1.2rem); background: #1c1305; }
+
+@media (max-width: 640px) {
+  .sound-pop { position: fixed; left: 0.75rem; right: 0.75rem; top: 3.4rem; width: auto; }
+}

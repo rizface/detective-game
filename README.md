@@ -38,6 +38,10 @@ Cloudflare Tunnel, ngrok…) and set `SECURE_COOKIES=true`.
   compares your time against a sharp agency's, so talk it over before you move.
 - **Evidence board.** Pin documents, people, places and notes, and string them together. Teammates see cards
   move as you drag them.
+- **Sound** is off until you turn it on with the speaker button in the top bar: rain and harbor in the
+  background, a car door when you travel, a typewriter when evidence arrives, a piano chord for each new chapter.
+  Everything is synthesized in the browser; there are no audio files. Each player's setting is saved in their own
+  browser.
 - **The report** opens in the last chapter. Every teammate who is online must sign it before it can be filed.
   You get three attempts, and after each you're only told how many of the key answers were right.
 
@@ -87,6 +91,7 @@ backend/                 Go
 frontend/                React + TypeScript + Vite
   src/game               the game screen: map, scenes, evidence, interviews, board, report
   src/admin              the case editor
+  src/sound              synthesized sound effects and ambience (Web Audio)
 docs/                    authoring guide and an example case
 ```
 

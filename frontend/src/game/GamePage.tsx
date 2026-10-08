@@ -17,6 +17,7 @@ import DocReader from './DocReader'
 import Dossier from './Dossier'
 import Interview from './Interview'
 import Board from './Board'
+import { useGameSounds } from '../sound/useGameSounds'
 import './game.css'
 
 const TABS: { id: Tab; label: string }[] = [
@@ -35,6 +36,7 @@ export default function GamePage() {
   const g = useGame()
   const [talkTo, setTalkTo] = useState<string | null>(null)
   useTeamSocket(teamId)
+  useGameSounds()
 
   useEffect(() => {
     if (teamId) g.load(teamId)
